@@ -19,6 +19,49 @@
 
 ---
 
+## 💡 Introdução Humanizada: Por Que o Z-Oracle Existe?
+
+Quem já passou pela experiência de precisar de suporte urgente em uma fintech, plataforma de apostas esportivas ou e-commerce conhece a frustração clássica: você envia mensagens rápidas e picadas pelo WhatsApp relatando uma transação que não caiu, e do outro lado recebe uma árvore de decisão robótica e engessada que não entende o contexto — ou, pior ainda, um chatbot de inteligência artificial descalibrado que inventa regras que não existem, promete prazos ilusórios e "esquece" o que você acabou de dizer.
+
+Em operações digitais de alto volume, **a confiança do usuário é o ativo mais frágil e valioso**. Quando um cliente procura o suporte com um problema financeiro ou de conta, ele traz consigo ansiedade real. Nesse momento:
+* Respostas frias ou confusas geram raiva imediata e cancelamentos de conta;
+* Alucinações de regras (como prazos de saque errados ou liberação indevida de saldo) geram processos jurídicos e passivos regulatórios severos;
+* Chatbots lentos que demoram dezenas de segundos para responder quebram a conversa e sobrecarregam o atendimento humano com chamados duplicados.
+
+### A Falácia dos "Bots Ingênuos" de IA
+Com a explosão dos Grandes Modelos de Linguagem (LLMs), muitas empresas correram para plugar prompts simples diretamente em APIs na nuvem. Essa abordagem superficial gera falhas catastróficas em produção:
+1. **O Problema do "Cérebro Dividido":** Dar dezenas de ferramentas simultâneas para um LLM faz com que ele acione APIs de saque ou pesquise manuais inteiros apenas para responder um simples *"Bom dia!"*.
+2. **Custo e Lentidão Exponenciais:** Cada mensagem fragmentada do WhatsApp dispara uma inferência pesada na nuvem, consumindo centenas de milhares de tokens sem necessidade e gerando contas astronômicas.
+3. **Vulnerabilidade a Injeções:** Usuários mal-intencionados conseguem facilmente convencer o bot a ignorar suas instruções e vazar políticas internas.
+
+---
+
+## 🎯 Objetivo Central do Z-Oracle
+
+O **Z-Oracle Atendee** não nasceu para ser apenas mais um gerador de texto automático. Seu propósito é **atuar como o mais disciplinado, empático e fidedigno operador de Customer Success de primeiro nível**.
+
+O sistema foi desenhado com base em três pilares fundamentais:
+
+1. **Empatia com Rigor Investigativo:** Ele escuta ativamente o usuário, espera que ele termine seu raciocínio (agrupando rajadas de mensagens em um buffer inteligente de 15 segundos) e só emite diagnósticos após fazer perguntas direcionadas (protocolo em 2 passos), tratando a dor do cliente com seriedade e respeito.
+2. **Blindagem Antialucinação Absoluta:** O agente é estritamente proibido de supor regras de negócio. Se uma informação não constar comprovadamente na base vetorial (RAG) ou se o dado não vier de uma ferramenta validada, ele admite com transparência seu limite e aciona o transbordo para um humano.
+3. **Engenharia de Alta Eficiência e Soberania Local:** Utiliza computação determinística compilada em C/NumPy rodando 100% on-premise no container para triagem e classificação semântica em **6 milissegundos**. O modelo generativo na nuvem só é chamado quando há real necessidade de raciocínio cognitivo, economizando mais de 65% em tokens e protegendo dados sensíveis (LGPD) antes de qualquer trânsito externo.
+
+---
+
+## 📚 Documentação Técnica Aprofundada (Para Recrutadores e Engenheiros)
+
+Para lideranças de tecnologia, arquitetos de software e **agentes de recrutamento técnico**, este repositório disponibiliza um conjunto completo de whitepapers e especificações no diretório [`docs/`](./docs/README.md):
+
+| Documento | Tema & Especialidade | Por que avaliar? |
+| :--- | :--- | :--- |
+| 🏛️ **[docs/arquitetura.md](./docs/arquitetura.md)** | **Arquitetura de Software & Resiliência** | Detalha a orquestração assíncrona, o buffer distribuído de debounce de 15s em Redis, isolamento de webhooks e matriz completa de tecnologias. |
+| ⚡ **[docs/roteadorsemantico.md](./docs/roteadorsemantico.md)** | **Benchmark & Inferência 100% Local** | Prova empírica de execução de embeddings em CPU local (`all-MiniLM-L6-v2` + produto escalar NumPy) com **6.35 ms** de latência e **zero dependência de APIs externas**. |
+| 🛡️ **[docs/diretrizes.md](./docs/diretrizes.md)** | **Governança Conversacional & Compliance** | Manual de conduta do bot: protocolos de 2 passos de investigação, mecanismo anti-drift, conformidade com a LGPD (anonimização matemática) e métricas de FCR e CSAT. |
+| 🔮 **[docs/pesquisa.md](./docs/pesquisa.md)** | **Epistemologia & Oráculo de Resolução** | Estudo aprofundado sobre transição de inferência probabilística para raciocínio de Primeiros Princípios, matriz de complexidade Cynefin, TRIZ-GPT, GraphRAG e orquestração multiagente. |
+| 🧭 **[docs/README.md](./docs/README.md)** | **Hub Central de Documentação** | Índice executivo e guia de leitura para recrutadores técnicos e avaliadores. |
+
+---
+
 ## Fluxo Arquitetural
 
 ```
