@@ -1,0 +1,58 @@
+# ==============================================================
+# Z-Oracle Agent — .gitignore
+# ==============================================================
+
+# Variáveis de ambiente (NUNCA commitar chaves reais)
+.env
+.env.local
+.env.production
+
+# Ambiente virtual Python
+.venv/
+venv/
+env/
+
+# Cache do modelo RAG (100MB+ — recriado no boot)
+index_cache_v5/
+index_cache*/
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Logs e erros
+pip_error.log
+*.log
+
+# IDEs
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Build Docker local
+*.tar
+
+# ----------------------------------------------------------------
+# Pastas internas — dados proprietários da empresa cliente
+# NÃO commitar: base de conhecimento, notebooks, SQLs de dados
+# ----------------------------------------------------------------
+.3Documentos/
+.4ArquivoMorto/
+.2Vetorizador/
+.1Testes/
+
+# Arquivos de dados internos (mesmo que estejam na raiz)
+relatorio_tech.md
+*.sql
+*.xlsx
+*.csv
+Chat
+Docs

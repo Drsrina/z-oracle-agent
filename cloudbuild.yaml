@@ -1,0 +1,70 @@
+# cloudbuild.yaml — Z-Oracle Agent
+# Substitua SEU_PROJECT_ID pelo ID do seu projeto GCP
+# Serviço: Cloud Run SERVICE (API HTTP de longa duração, não Jobs)
+
+substitutions:
+  _REGION: 'us-central1'                   # Altere conforme sua região GCP
+  _PROJECT_ID: 'SEU_PROJECT_ID'            # Substitua pelo seu GCP Project ID
+  _AR_REPO_NAME: 'SEU_ARTIFACT_REGISTRY'   # Nome do seu repositório no Artifact Registry
+  _IMAGE_NAME: 'z-oracle-agent'
+  _SERVICE_NAME: 'z-oracle-agent-api'
+
+steps:
+  # 1. Build da imagem Docker
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_AR_REPO_NAME}/${_IMAGE_NAME}:$COMMIT_SHA',
+      '-t', '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_AR_REPO_NAME}/${_IMAGE_NAME}:latest',
+      '.'
+    ]
+
+  # 2. Push para o Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push', '--all-tags',
+      '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_AR_REPO_NAME}/${_IMAGE_NAME}'
+    ]
+
+  # 3. Deploy no Cloud Run SERVICE
+  # Variáveis sensíveis vêm do Secret Manager — nunca hardcoded aqui
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_AR_REPO_NAME}/${_IMAGE_NAME}:$COMMIT_SHA'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'        # Webhook do WhatsApp precisa acesso público
+      - '--min-instances'
+      - '1'                              # Mantém instância quente — evita cold start do Torch/MiniLM
+      - '--max-instances'
+      - '5'                              # Limite de custo para o teste de carga
+      - '--memory'
+      - '2Gi'                            # Torch CPU + MiniLM + FastAPI baseline exigem espaço
+      - '--cpu'
+      - '2'                              # 1 CPU por worker Uvicorn (--workers 2 no Dockerfile)
+      - '--timeout'
+      - '300'                            # Tool calling LLM pode demorar -- margem generosa
+      - '--concurrency'
+      - '80'                             # Requisições simultâneas por instância
+      - '--execution-environment'
+      - 'gen2'                           # 2ª geração: menor cold start, melhor I/O e NumPy
+      - '--cpu-throttling'               # DESABILITADO: CPU full durante ciclo de vida (instance-based billing)
+      - '--no-cpu-throttling'            # Garante que background tasks (Supabase/asyncio) não são cortadas
+      - '--port'
+      - '8000'                           # Porta do uvicorn — alinha com health check
+      - '--set-secrets=GEMINI_API_KEY=GEMINI_API_KEY:latest,REDIS_URL=REDIS_URL:latest,SUPABASE_URL=SUPABASE_URL:latest,SUPABASE_ANON_KEY=SUPABASE_ANON_KEY:latest'
+
+images:
+  - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_AR_REPO_NAME}/${_IMAGE_NAME}:$COMMIT_SHA'
+  - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_AR_REPO_NAME}/${_IMAGE_NAME}:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET

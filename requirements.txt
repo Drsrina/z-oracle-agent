@@ -1,0 +1,36 @@
+# ==============================================================
+# Z-Oracle Agent — Dependências Python
+# Sincronizado com o código real em produção (Março 2026)
+# ==============================================================
+
+# Servidor e API
+fastapi>=0.110.0
+uvicorn>=0.29.0
+pydantic>=2.6.0
+python-dotenv>=1.0.0
+strawberry-graphql>=0.300.0
+
+# Banco de Dados
+redis>=5.0.3
+
+# IA — LlamaIndex + Gemini
+llama-index-core>=0.10.20
+llama-index-llms-gemini
+llama-index-embeddings-huggingface
+llama-index-readers-web
+google-generativeai>=0.5.0
+
+# Segurança e Roteamento
+validate-docbr>=1.10.0
+# torch CPU-only — evita download de 3GB+ de libs CUDA desnecessárias no Cloud Run
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+sentence-transformers>=2.5.0
+numpy>=1.26.0
+
+# Supabase — Logger Analítico
+supabase>=2.3.0
+
+# Frontend de Testes (não vai para produção, mas mantemos no requirements)
+streamlit>=1.32.0
+requests>=2.31.0
