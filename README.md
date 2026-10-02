@@ -313,9 +313,15 @@ docker compose up --build -d
 
 Serviços disponíveis após a inicialização:
 - **Operator Console UI (Frontend)**: [http://localhost:3000](http://localhost:3000) (Login padrão: `adm123` / `adm123`)
+- **LibreDB Studio (Web SQL IDE)**: [http://localhost:5555](http://localhost:5555) (Gerenciador e editor visual do PostgreSQL)
 - **FastAPI / GraphQL Playground (Backend)**: [http://localhost:8000/graphql](http://localhost:8000/graphql)
 - **Redis Local**: `localhost:6379`
 - **PostgreSQL Local + pgvector**: `localhost:5432` (db: `zoracle`)
+
+> **Como conectar o LibreDB Studio ao PostgreSQL:**
+> Ao entrar no LibreDB Studio em `http://localhost:5555`, crie uma nova conexão do tipo **PostgreSQL** usando a URL interna:
+> `postgresql://postgres:postgres@postgres_db:5432/aegis`
+> (ou Host: `postgres_db`, Porta: `5432`, Usuário: `postgres`, Senha: `postgres`, DB: `aegis`).
 
 ---
 

@@ -61,6 +61,20 @@ services:
       timeout: 3s
       retries: 5
 
+  db_studio:
+    image: ghcr.io/libredb/libredb-studio:latest
+    ports:
+      - "5555:3000"
+    environment:
+      - STORAGE_PROVIDER=sqlite
+    volumes:
+      - libredb_data:/app/data
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   redis_data:
   postgres_data:
+  libredb_data:
