@@ -4,17 +4,23 @@
 
 # Variáveis de ambiente (NUNCA commitar chaves reais)
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
 
 # Ambiente virtual Python
 .venv/
 venv/
 env/
 
-# Cache do modelo RAG (100MB+ — recriado no boot)
-index_cache_v5/
+# Dependências Node.js (Frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cache do modelo RAG e LlamaIndex
 index_cache*/
+.cache/
 
 # Cache Python
 __pycache__/
@@ -23,37 +29,24 @@ __pycache__/
 *.pyd
 .Python
 
-# Logs e erros
-pip_error.log
+# Logs e arquivos temporários
 *.log
+*.tmp
 
-# IDEs
+# Arquivos de planilhas e dados locais
+*.xlsx
+*.xls
+*.csv
+*.sql
+!docker/**/*.sql
+
+# IDEs e Sistema Operacional
 .vscode/settings.json
 .idea/
 *.swp
 *.swo
-
-# Sistema operacional
 .DS_Store
 Thumbs.db
 
-# Build Docker local
+# Docker builds locais
 *.tar
-
-# ----------------------------------------------------------------
-# Pastas internas — dados proprietários da empresa cliente
-# NÃO commitar: base de conhecimento, notebooks, SQLs de dados
-# ----------------------------------------------------------------
-.3Documentos/
-.4ArquivoMorto/
-.2Vetorizador/
-.1Testes/
-
-# Arquivos de dados internos (mesmo que estejam na raiz)
-relatorio_tech.md
-*.sql
-!docker/**/*.sql
-*.xlsx
-*.csv
-Chat
-Docs
