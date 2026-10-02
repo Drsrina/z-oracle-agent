@@ -17,6 +17,16 @@ services:
       redis_db:
         condition: service_healthy
 
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - API_URL=http://api:8000
+    depends_on:
+      - api
+
   redis_db:
     image: redis:7-alpine
     ports:

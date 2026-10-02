@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 # Z-Oracle Agent
 ### Agente de Atendimento com IA — BetAgent
@@ -26,7 +26,9 @@
 │                         Z-Oracle Agent — Pipeline Completo                     │
 └─────────────────────────────────────────────────────────────────────────────┘
 
-  Interface Streamlit (Chat UI)
+  Interfaces de Atendimento:
+  [A] Operator Console (Cyberpunk Web - Node.js/Express)
+  [B] Streamlit Client (Python)
          │
          │  POST /graphql  mutation enviarMensagem
          ▼
@@ -65,11 +67,10 @@
   │             registar_log_assincrono() → Supabase         │
   └──────────────────────────────────────────────────────────┘
            │
-           ▼  Query obterHistorico()
-  ┌──────────────────┐
-  │  Streamlit       │  ◄── Polling GraphQL a cada 3s
-  │  frontend.py     │       Stream de digitação humanizado
-  └──────────────────┘
+           ▼  Query obterHistorico() / Polling
+  ┌──────────────────────────────────────────────┐
+  │  Console Web (:3000) / Streamlit (:8501)     │  ◄── Polling GraphQL + Metadata Inspector
+  └──────────────────────────────────────────────┘
 ```
 
 ---
@@ -217,38 +218,66 @@ query {
 
 ## Como Executar
 
-### Desenvolvimento Local
+### 1. Implantação Self-Hosted Completa (Docker Compose) 🐳
+
+A forma mais simples e recomendada para rodar toda a stack localmente (Backend + Console Frontend + Redis):
 
 ```bash
-# 1. Instalar dependências
+# 1. Copie e preencha as variáveis de ambiente mínimas (.env)
+cp .env.example .env
+
+# 2. Suba todos os serviços em segundo plano
+docker compose up --build -d
+```
+
+Serviços disponíveis após a inicialização:
+- **Operator Console UI (Frontend)**: [http://localhost:3000](http://localhost:3000) (Login padrão: `adm123` / `adm123`)
+- **FastAPI / GraphQL Playground (Backend)**: [http://localhost:8000/graphql](http://localhost:8000/graphql)
+- **Redis Local**: `localhost:6379`
+
+---
+
+### 2. Desenvolvimento Local (Python Manual)
+
+```bash
+# 1. Instalar dependências Python
 pip install -r requirements.txt
 
-# 2. Configurar variáveis de ambiente (editar .env)
-# GEMINI_API_KEY e REDIS_URL são obrigatórias
-
-# 3. Iniciar com o script pronto
-.1Testes\iniciar_servidor.bat
-# OU manualmente:
+# 2. Iniciar a API Backend
 uvicorn api.main:app --reload --port 8000
-streamlit run frontend.py
+
+# 3. Escolha uma das interfaces:
+# Opção A: Console Cyberpunk Web (Node.js)
+cd frontend && npm install && npm start # Acessa em http://localhost:3000
+
+# Opção B: Interface Streamlit (Python puro)
+streamlit run frontend.py # Acessa em http://localhost:8501
 ```
 
-### Produção com Docker Compose (Dev)
+---
+
+### 3. Pipeline de Vetorização de Base de Conhecimento (Offline) 🧠
+
+Para processar artigos ou bases de conhecimento institucionais e gerar embeddings para o RAG:
 
 ```bash
-# Preencher .env antes
-docker-compose up --build
+cd tools/vectorizer
+pip install -r requirements.txt
+
+# Executa o pipeline com dataset de exemplo ou customizado
+python pipeline_vetorizacao.py --input-csv dados.csv --output-pkl embeddings.pkl
 ```
 
-### Deploy Cloud Run (Produção)
+---
+
+### 4. Deploy no Google Cloud Run (Produção Serverless) ☁️
 
 ```bash
-# Pré-requisitos: secrets criados no GCP Secret Manager
+# Pré-requisitos: secrets configurados no GCP Secret Manager
 gcloud builds submit --config cloudbuild.yaml
 ```
 
-> O `Dockerfile` pré-instala o modelo `all-MiniLM-L6-v2` na imagem.
-> O container não precisa baixar o modelo a cada restart.
+> O `Dockerfile` pré-instala o modelo `all-MiniLM-L6-v2` na imagem, dispensando downloads repetitivos em cold starts.
 
 ---
 

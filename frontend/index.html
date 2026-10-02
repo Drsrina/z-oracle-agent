@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEGIS V2 - Console</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="orb-container">
+        <div class="orb cyan"></div>
+        <div class="orb purple"></div>
+        <div class="orb pink"></div>
+    </div>
+
+    <!-- TELA 1: LOGIN -->
+    <div id="login-screen" class="screen active">
+        <div class="glass-panel login-box">
+            <div>
+                <h1 class="title-main text-neon-cyan">AEGIS V2</h1>
+                <p class="text-secondary">Autenticação do Operador</p>
+                <div style="margin-top: 10px; font-size: 0.8rem; color: var(--text-muted);">
+                    <i data-lucide="clock" style="width: 14px; height: 14px; display: inline; vertical-align: middle;"></i> 
+                    <span id="login-clock">--:--:--</span>
+                </div>
+            </div>
+
+            <form id="login-form" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <div class="input-group">
+                    <label for="username">Usuário</label>
+                    <input type="text" id="username" class="glass-input" placeholder="Digite seu usuário..." autocomplete="off">
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" class="glass-input" placeholder="••••••••">
+                </div>
+
+                <div id="login-error" style="color: #f87171; font-size: 0.85rem; display: none;">Credenciais inválidas.</div>
+
+                <button type="submit" id="btn-login" class="btn-primary">Acessar Console</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TELA 2: CONSOLE -->
+    <div id="console-screen" class="screen">
+        <header class="header glass-panel">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <h2 class="text-neon-cyan">AEGIS <span style="font-weight: 300;">Console</span></h2>
+                <span class="badge blue" id="session-badge">SESSID: ---</span>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button id="btn-theme" class="btn-icon" title="Alternar Tema"><i data-lucide="moon"></i></button>
+                <button id="btn-reset" class="btn-icon btn-icon-outline" title="Reiniciar Sessão"><i data-lucide="rotate-ccw"></i></button>
+                <button id="btn-logout" class="btn-icon btn-icon-danger" title="Sair"><i data-lucide="log-out"></i></button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="glass-panel chat-area">
+                <div class="chat-history" id="chat-history">
+                    <div style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+                        Conexão Estabelecida. Estabelecendo túnel seguro.
+                    </div>
+                </div>
+
+                <form id="chat-form" class="chat-input-area">
+                    <input type="text" id="chat-input" class="glass-input" style="flex: 1;" placeholder="Comunique-se com a IA..." autocomplete="off">
+                    <button type="submit" id="btn-send" class="btn-primary" style="padding: 0.8rem 1.2rem;"><i data-lucide="send"></i></button>
+                </form>
+            </div>
+
+            <div class="glass-panel metadata-sidebar">
+                <h3 class="text-neon-accent" style="margin-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; gap: 5px;">
+                    <i data-lucide="terminal" style="width: 18px;"></i> LoggerSidebar
+                </h3>
+                <div class="log-terminal" id="log-terminal">
+                    <div class="log-entry info">[SISTEMA] AEGIS Engine v2.0 carregada.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // ==========================================
+        //  DOM References
+        // ==========================================
+        const loginScreen    = document.getElementById('login-screen');
+        const consoleScreen  = document.getElementById('console-screen');
+        const loginForm      = document.getElementById('login-form');
+        const usernameInput  = document.getElementById('username');
+        const passwordInput  = document.getElementById('password');
+        const loginError     = document.getElementById('login-error');
+        const clockElem      = document.getElementById('login-clock');
+        const chatForm       = document.getElementById('chat-form');
+        const chatInput      = document.getElementById('chat-input');
+        const chatHistory    = document.getElementById('chat-history');
+        const logTerminal    = document.getElementById('log-terminal');
+        const sessionBadge   = document.getElementById('session-badge');
+        const btnTheme       = document.getElementById('btn-theme');
+
+        // ==========================================
+        //  Estado Global
+        // ==========================================
+        let sessionId        = null;
+        let lastMessageCount = 0;
+        let pollingInterval  = null;
+        let isTyping         = false;
+        // FIX #5: flag para saber que a mensagem do usuário já foi renderizada localmente
+        let userMsgLocalCount = 0;
+
+        // ==========================================
+        //  Relógio
+        // ==========================================
+        setInterval(() => {
+            const now = new Date();
+            clockElem.innerText = now.toLocaleTimeString('pt-BR');
+        }, 1000);
+
+        // ==========================================
+        //  Tema claro/escuro
+        // ==========================================
+        let isLightMode = false;
+        btnTheme.addEventListener('click', () => {
+            isLightMode = !isLightMode;
+            if (isLightMode) {
+                document.body.classList.add('light-theme');
+                btnTheme.innerHTML = '<i data-lucide="sun"></i>';
+            } else {
+                document.body.classList.remove('light-theme');
+                btnTheme.innerHTML = '<i data-lucide="moon"></i>';
+            }
+            lucide.createIcons(); // FIX #10: Recria ícones após injetar HTML
+        });
+
+        // ==========================================
+        //  FIX #9: Persistência via localStorage
+        // ==========================================
+        function salvarSessao() {
+            if (!sessionId) return;
+            localStorage.setItem('aegis_sessionId', sessionId);
+            localStorage.setItem('aegis_lastCount', lastMessageCount);
+        }
+
+        function restaurarSessao() {
+            const savedId    = localStorage.getItem('aegis_sessionId');
+            const savedCount = localStorage.getItem('aegis_lastCount');
+            if (savedId) {
+                sessionId        = savedId;
+                lastMessageCount = parseInt(savedCount || '0', 10);
+                sessionBadge.innerText = 'SESS: ' + sessionId;
+                appendLog(`Sessão restaurada do localStorage: ${sessionId}`, 'warning');
+                return true;
+            }
+            return false;
+        }
+
+        // ==========================================
+        //  Login
+        // ==========================================
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = usernameInput.value;
+            const pass = passwordInput.value;
+            // Nota de segurança: credenciais hardcoded apenas para MVP de demonstração.
+            if ((user === 'adm123' || user === 'admin123') && pass === 'adm123') {
+                loginError.style.display = 'none';
+                enterConsole();
+            } else {
+                loginError.style.display = 'block';
+            }
+        });
+
+        function enterConsole() {
+            loginScreen.classList.remove('active');
+            consoleScreen.classList.add('active');
+
+            // Tenta restaurar sessão salva; se não houver, cria uma nova
+            if (!restaurarSessao()) {
+                sessionId = '5511' + Math.floor(Math.random() * 99999999).toString().padStart(8, '0');
+                sessionBadge.innerText = 'SESS: ' + sessionId;
+                salvarSessao();
+            }
+
+            appendLog(`Operador autenticado. Sessão: ${sessionId}`, 'success');
+            appendLog(`Conectando via GraphQL Proxy → /api/graphql`, 'info');
+
+            // Inicia polling
+            iniciarPolling();
+        }
+
+        // ==========================================
+        //  Integração GraphQL
+        // ==========================================
+        async function fetchGraphQL(query, variables = {}) {
+            try {
+                const response = await fetch('/api/graphql', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, variables })
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (err) {
+                appendLog(`[Rede] Erro GraphQL: ${err.message}`, 'error');
+                return null;
+            }
+        }
+
+        // ==========================================
+        //  Enviar Mensagem (Mutation)
+        // ==========================================
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            chatInput.value = '';
+            appendLog(`[GraphQL] Mutation enviarMensagem...`, 'info');
+
+            const mutation = `
+                mutation SendMsg($sessionId: String!, $mensagem: String!) {
+                  enviarMensagem(sessionId: $sessionId, mensagem: $mensagem) {
+                    status
+                    mensagem
+                    aguarde
+                  }
+                }
+            `;
+
+             // Renderiza mensagem do usuário localmente
+            renderMessageObj({ role: 'user', content: text });
+            userMsgLocalCount++;
+            scrollToBottom();
+
+            // Ativa "digitando" e bloqueia input IMEDIATAMENTE
+            setTyping(true);
+
+            const data = await fetchGraphQL(mutation, { sessionId, mensagem: text });
+            if (data && data.data && data.data.enviarMensagem) {
+                appendLog(`[Backend] ${data.data.enviarMensagem.mensagem}`, 'success');
+            }
+        });
+
+        // ==========================================
+        //  setTyping — controle centralizado
+        // ==========================================
+        function setTyping(val) {
+            isTyping = val;
+
+            // Bloqueia / desbloqueia input e botão send
+            chatInput.disabled    = val;
+            document.getElementById('btn-send').disabled = val;
+            chatInput.placeholder = val
+                ? 'Aguardando resposta da IA...'
+                : 'Comunique-se com a IA...';
+            chatInput.style.opacity = val ? '0.5' : '1';
+
+            if (val) {
+                // Garante que o typing indicator existe
+                if (!document.getElementById('typing-indicator-msg')) {
+                    const wrap = document.createElement('div');
+                    wrap.className = 'message bot';
+                    wrap.id = 'typing-indicator-msg';
+                    wrap.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+                    chatHistory.appendChild(wrap);
+                    scrollToBottom();
+                }
+            } else {
+                // Remove o indicador quando o bot respondeu
+                const el = document.getElementById('typing-indicator-msg');
+                if (el) el.remove();
+            }
+        }
+
+        // ==========================================
+        //  Polling do Histórico (Query)
+        // ==========================================
+        async function checkHistorico() {
+            if (!sessionId) return;
+
+            const query = `
+                query GetHist($sessionId: String!) {
+                  historico(sessionId: $sessionId) {
+                    role
+                    content
+                    confianca
+                    motivo
+                    model
+                    routeScore
+                    sentiment
+                    sentimentScore
+                    latencyRoute
+                    probabilidades
+                    logGuardrail
+                    logRoteamento
+                    logRag
+                    logGeracao
+                    logDecisao
+                  }
+                }
+            `;
+
+            const req = await fetchGraphQL(query, { sessionId });
+            if (req && req.data && req.data.historico) {
+                const msgs = req.data.historico;
+
+                if (msgs.length > lastMessageCount) {
+                    // Remove typing indicator antes de renderizar novas msgs
+                    const oldTyping = document.getElementById('typing-indicator-msg');
+                    if (oldTyping) oldTyping.remove();
+
+                    const novas = msgs.slice(lastMessageCount);
+                    let rendered = 0;
+                    novas.forEach(m => {
+                        // Pula mensagens de usuário que já foram renderizadas localmente
+                        if (m.role === 'user' && userMsgLocalCount > 0) {
+                            userMsgLocalCount--;
+                            return;
+                        }
+                        renderMessageObj({
+                            role: m.role === 'assistant' ? 'bot' : 'user',
+                            ...m
+                        });
+                        rendered++;
+                    });
+
+                    if (rendered > 0) {
+                        appendLog(`[Polling] +${rendered} mensagem(ns) nova(s) recebida(s).`, 'success');
+                    }
+                    lastMessageCount = msgs.length;
+                    salvarSessao();
+                    scrollToBottom();
+                }
+
+                // Só desativa typing DEPOIS de ter renderizado as novas msgs
+                if (isTyping && msgs.length > 0 && msgs[msgs.length - 1].role === 'assistant') {
+                    setTyping(false);
+                } else if (isTyping) {
+                    // Garante que o indicador está visível enquanto aguarda
+                    if (!document.getElementById('typing-indicator-msg')) {
+                        const wrap = document.createElement('div');
+                        wrap.className = 'message bot';
+                        wrap.id = 'typing-indicator-msg';
+                        wrap.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+                        chatHistory.appendChild(wrap);
+                        scrollToBottom();
+                    }
+                }
+            }
+        }
+
+        function iniciarPolling() {
+            if (pollingInterval) clearInterval(pollingInterval);
+            pollingInterval = setInterval(checkHistorico, 1500);
+        }
+
+        // ==========================================
+        //  Renderização de Mensagens
+        // ==========================================
+        function renderMessageObj(msg) {
+            const isUser = msg.role === 'user';
+            const wrap   = document.createElement('div');
+            wrap.className = isUser ? 'message user' : 'message bot';
+
+            let finalOutput = msg.content || '';
+            let injectedVeredictoCode = null;
+
+            // Filtro de vazamento do [VEREDICTO] do LLM
+            if (!isUser && finalOutput.includes('[VEREDICTO]')) {
+                const splitAt = finalOutput.indexOf('[VEREDICTO]');
+                injectedVeredictoCode = finalOutput.substring(splitAt).replace('[VEREDICTO]', '').trim();
+                finalOutput = finalOutput.substring(0, splitAt).trim();
+            }
+
+            const textDiv = document.createElement('div');
+            // FIX #3: Regex correta — \n (uma barra) em vez de \\n (duas barras)
+            textDiv.innerHTML = finalOutput.replace(/\n/g, '<br>');
+            wrap.appendChild(textDiv);
+
+            // Metadados apenas para mensagens do bot
+            if (!isUser) {
+                const metaResult = buildDecisaoPanel(msg, injectedVeredictoCode);
+                if (metaResult) {
+                    wrap.appendChild(metaResult.btnToggle);
+                    wrap.appendChild(metaResult.panel);
+                }
+            }
+
+            chatHistory.appendChild(wrap);
+            scrollToBottom();
+        }
+
+        // ==========================================
+        //  Painel de Metadados Rico
+        // ==========================================
+        function buildDecisaoPanel(msg, injectedVeredictoCode) {
+            let logRoute = null, logDiag = null, logGuard = null, logGer = null, logRag = null;
+            try { if (msg.logRoteamento) logRoute = JSON.parse(msg.logRoteamento); } catch(e) {}
+            try { if (msg.logDecisao)    logDiag  = JSON.parse(msg.logDecisao);    } catch(e) {}
+            try { if (msg.logGuardrail)  logGuard  = JSON.parse(msg.logGuardrail); } catch(e) {}
+            try { if (msg.logGeracao)    logGer   = JSON.parse(msg.logGeracao);    } catch(e) {}
+            try { if (msg.logRag)        logRag   = JSON.parse(msg.logRag);        } catch(e) {}
+
+            const temDados = logRoute || logDiag || logGuard || logGer || injectedVeredictoCode || msg.confianca;
+            if (!temDados) return null;
+
+            // --- Dados extraídos ---
+            const rota      = logRoute?.route || 'BATE_PAPO';
+            const cnfSint   = logDiag?.confianca_sintetica ?? (msg.confianca ? parseInt(msg.confianca) : null);
+            const threshold = logDiag?.threshold_atual ?? 75;
+            const decisao   = logDiag?.decisao || null;
+            const proximo   = logDiag?.proximo_passo_sugerido || '';
+            const camposFalt= logDiag?.campos_faltantes || [];
+
+            const safe      = logGuard?.safe ? 'Sim' : (logGuard ? 'Não' : '?');
+            const piiMask   = logGuard?.piiMasked ? 'Sim' : (logGuard ? 'Não' : '?');
+            const gReason   = logGuard?.reason || 'Permitido';
+
+            const routeScore= logRoute?.routeScore ?? msg.routeScore ?? 0;
+            const domain    = logRoute?.cynefinDomain || '—';
+            const latency   = logRoute?.latency != null ? `${logRoute.latency}ms` : '—';
+            const sentText  = logRoute?.sentiment || msg.sentiment || 'Neutro';
+            const sentScore = logRoute?.sentimentScore ?? msg.sentimentScore ?? 0;
+
+            const model     = logGer?.model || msg.model || '—';
+            const cnfLLM    = msg.confianca || (logGer?.confianca ? logGer.confianca + '%' : '—');
+            const motivo    = msg.motivo || logGer?.motivo || '';
+
+            // Cores por decisão
+            const DECISAO_COLORS = {
+                DIAGNOSTICAR: { bg: 'rgba(74,222,128,0.15)', border: '#4ade80', text: '#4ade80', icon: '🟢' },
+                COLETAR:      { bg: 'rgba(56,189,248,0.15)', border: '#38bdf8', text: '#38bdf8', icon: '🔵' },
+                ECO:          { bg: 'rgba(251,191,36,0.15)', border: '#fbbf24', text: '#fbbf24', icon: '🟡' },
+                ESCALAR:      { bg: 'rgba(248,113,113,0.15)', border: '#f87171', text: '#f87171', icon: '🔴' },
+                CLARIFICAR:   { bg: 'rgba(167,139,250,0.15)', border: '#a78bfa', text: '#a78bfa', icon: '🟣' },
+            };
+            const dc = decisao ? (DECISAO_COLORS[decisao] || DECISAO_COLORS.COLETAR) : null;
+
+            // Barra de progresso
+            const pct     = cnfSint !== null ? Math.min(cnfSint, 100) : 0;
+            const barColor= pct < 30 ? '#f87171' : pct < threshold ? '#fbbf24' : '#4ade80';
+
+            // --- Botão Toggle ---
+            const btnToggle = document.createElement('button');
+            btnToggle.className = 'meta-toggle-btn';
+            btnToggle.innerHTML = `
+                <span style="display:flex;align-items:center;gap:6px;">
+                    <i data-lucide="activity" style="width:14px;height:14px;"></i>
+                    METADADOS DA RESPOSTA
+                </span>
+                <i data-lucide="chevron-down" style="width:14px;height:14px;" class="meta-chevron"></i>
+            `;
+
+            // --- Painel ---
+            const panel = document.createElement('div');
+            panel.className = 'meta-panel-rich';
+
+            // ---- Seção DecisaoPanel ----
+            let decisaoHtml = '';
+            if (decisao && dc) {
+                const camposHtml = camposFalt.map(c => `<span class="meta-field-tag">${c}</span>`).join('');
+                decisaoHtml = `
+                    <div class="meta-decisao-card" style="background:${dc.bg};border:1px solid ${dc.border};">
+                        <div class="meta-decisao-header">
+                            <span class="meta-decisao-badge" style="color:${dc.text};">${dc.icon} ${decisao}</span>
+                            <span class="meta-decisao-threshold">threshold: ${threshold}%</span>
+                        </div>
+                        ${ cnfSint !== null ? `
+                        <div class="meta-conf-label">Confiança Sintética</div>
+                        <div class="meta-conf-bar-wrap">
+                            <div class="meta-conf-bar" style="width:${pct}%;background:${barColor};"></div>
+                        </div>
+                        <div class="meta-conf-pct" style="color:${barColor}">${pct}%</div>
+                        ` : ''}
+                        ${ proximo ? `<div class="meta-proximo">${proximo}</div>` : ''}
+                        ${ camposHtml ? `<div class="meta-campos">${camposHtml}</div>` : ''}
+                    </div>
+                `;
+            }
+
+            // ---- Seção Guardrail ----
+            const guardrailHtml = logGuard ? `
+                <div class="meta-section">
+                    <div class="meta-section-title"><i data-lucide="shield-check" style="width:12px;"></i> GUARDRAIL</div>
+                    <div class="meta-grid-2">
+                        <div>Safe: <span class="${safe==='Sim'?'meta-val-ok':'meta-val-bad'}">${safe}</span></div>
+                        <div>PII Masked: <span class="${piiMask==='Sim'?'meta-val-ok':'meta-val-bad'}">${piiMask}</span></div>
+                    </div>
+                    <div>Reason: <span class="meta-val-neutral">${gReason}</span></div>
+                </div>
+            ` : '';
+
+            // ---- Seção Roteamento ----
+            const rotHtml = logRoute ? `
+                <div class="meta-section">
+                    <div class="meta-section-title"><i data-lucide="git-branch" style="width:12px;"></i> ROTEAMENTO</div>
+                    <div class="meta-grid-2">
+                        <div>Route: <span class="meta-val-accent">${rota}</span></div>
+                        <div>Score: <span class="meta-val-accent">${typeof routeScore==='number'?routeScore.toFixed(4):routeScore}</span></div>
+                    </div>
+                    <div class="meta-grid-2">
+                        <div>Domain: <span class="meta-val-warn">${domain}</span></div>
+                        <div>Latency: <span class="meta-val-neutral">${latency}</span></div>
+                    </div>
+                    <div>Sentiment: <span class="meta-val-neutral">${sentText} (${typeof sentScore==='number'?sentScore.toFixed(4):sentScore})</span></div>
+                </div>
+            ` : '';
+
+            // ---- Seção Geração LLM ----
+            const gerHtml = (model !== '—' || motivo) ? `
+                <div class="meta-section">
+                    <div class="meta-section-title"><i data-lucide="cpu" style="width:12px;"></i> GERAÇÃO (LLM)</div>
+                    <div class="meta-grid-2">
+                        <div>Model: <span class="meta-val-accent">${model}</span></div>
+                        <div>Confiança: <span class="meta-val-accent">${cnfLLM}</span></div>
+                    </div>
+                    ${ motivo ? `<div class="meta-motivo-label">Motivo:</div><div class="meta-motivo-text">${motivo}</div>` : ''}
+                </div>
+            ` : '';
+
+            // ---- Seção Veredicto Injetado (raw) ----
+            const verdHtml = injectedVeredictoCode ? `
+                <div class="meta-section">
+                    <div class="meta-section-title"><i data-lucide="file-text" style="width:12px;"></i> VEREDICTO EXTRAÍDO</div>
+                    <pre class="meta-code-block">${injectedVeredictoCode}</pre>
+                </div>
+            ` : '';
+
+            panel.innerHTML = decisaoHtml + `
+                <div class="meta-inner-sections">
+                    ${guardrailHtml}${rotHtml}${gerHtml}${verdHtml}
+                </div>
+            `;
+
+            // Toggle
+            let expanded = false;
+            panel.style.display = 'none';
+            btnToggle.onclick = () => {
+                expanded = !expanded;
+                panel.style.display = expanded ? 'block' : 'none';
+                btnToggle.querySelector('.meta-chevron').style.transform = expanded ? 'rotate(180deg)' : 'rotate(0deg)';
+                lucide.createIcons();
+            };
+            lucide.createIcons();
+
+            return { btnToggle, panel };
+        }
+
+        // ==========================================
+        //  Log Terminal
+        // ==========================================
+        function appendLog(text, type = 'info') {
+            const div  = document.createElement('div');
+            div.className = `log-entry ${type}`;
+            const time = new Date().toLocaleTimeString('pt-BR');
+            div.innerText = `[${time}] ${text}`;
+            logTerminal.appendChild(div);
+            logTerminal.scrollTop = logTerminal.scrollHeight;
+        }
+
+        function scrollToBottom() {
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        // ==========================================
+        //  Botão Reset
+        //  FIX #6: reinicia polling para limpar referência à sessão antiga
+        // ==========================================
+        document.getElementById('btn-reset').onclick = () => {
+            chatHistory.innerHTML = '<div style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Sessão reiniciada. Novo túnel estabelecido.</div>';
+            sessionId        = '5511' + Math.floor(Math.random() * 99999999).toString().padStart(8, '0');
+            lastMessageCount = 0;
+            userMsgLocalCount  = 0;
+            isTyping           = false;
+            sessionBadge.innerText = 'SESS: ' + sessionId;
+            salvarSessao();
+            appendLog(`Sessão resetada. Novo ID: ${sessionId}`, 'warning');
+            iniciarPolling();
+        };
+
+        // LOGOUT
+        document.getElementById('btn-logout').onclick = () => {
+            // Para o polling
+            if (pollingInterval) clearInterval(pollingInterval);
+            pollingInterval = null;
+
+            // Limpa estado
+            sessionId        = null;
+            lastMessageCount = 0;
+            isTyping         = false;
+
+            // Limpa o chat para a próxima sessão
+            chatHistory.innerHTML = '';
+            logTerminal.innerHTML = '<div class="log-entry info">[SISTEMA] AEGIS Engine v2.0 carregada.</div>';
+
+            // Navega de volta ao login
+            consoleScreen.classList.remove('active');
+            loginScreen.classList.add('active');
+
+            // Limpa campos de login
+            usernameInput.value = '';
+            passwordInput.value = '';
+
+            appendLog('Sessão encerrada pelo operador.', 'warning');
+        };
+
+        // FIX #10: Recria ícones Lucide após toda inicialização do DOM
+        lucide.createIcons();
+    </script>
+</body>
+</html>
