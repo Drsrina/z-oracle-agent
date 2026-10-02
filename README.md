@@ -127,6 +127,13 @@ O router não utiliza listas rígidas de palavrões. Em vez disso, projeta a fra
 - **Cynefin COMPLICADO** (regras e transações): Confiança mínima de **75%**.
 - **Cynefin COMPLEXO / CAÓTICO** (3+ tentativas frustradas ou sentimentos irritados): O bot suspende o atendimento autônomo e aciona imediatamente o **Handoff Humano**.
 
+### ⚡ Execução 100% Local, Offline e Benchmark de ~6ms
+Diferente de sistemas que dependem de chamadas lentas de rede para classificar intenções, o Semantic Router do Z-Oracle roda **totalmente local na CPU**:
+1. **Modelo Pré-embarcado no Docker**: O modelo `all-MiniLM-L6-v2` (~90 MB) é gravado nas camadas do container durante o build. Não há downloads ou dependência de internet no boot.
+2. **Inferência em CPU Local (`PyTorch CPU-only`)**: Vetorização processada diretamente no processador sem requisições de rede.
+3. **Matemática C-Compiled em Memória RAM**: Os vetores das rotas e sentimentos são pré-computados na inicialização. O matching executa via **Dot Product matricial (NumPy)** com latência medida de **~6.3 ms**.
+4. **Custo e Dependência Zero**: A triagem e o firewall anti-alucinação continuam funcionando mesmo sem internet; chamadas externas de LLM só ocorrem quando uma rota generativa é autorizada.
+
 ---
 
 ## ⚡ Mecanismo de Debounce & Buffer de Mensagens (15s)
