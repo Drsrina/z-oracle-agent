@@ -12,6 +12,7 @@ strawberry-graphql>=0.300.0
 
 # Banco de Dados
 redis>=5.0.3
+asyncpg>=0.29.0
 
 # IA — LlamaIndex + Gemini
 llama-index-core>=0.10.20

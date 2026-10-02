@@ -1,4 +1,4 @@
-﻿# CLAUDE.md — Z-Oracle Agent (BetAgent AI Agent)
+# CLAUDE.md — Z-Oracle Agent (BetAgent AI Agent)
 
 ## Project Overview
 
@@ -49,13 +49,16 @@ Z-Oracle Agent/
 │   ├── router.py            # Semantic router + sentiment (all-MiniLM-L6-v2 singleton)
 │   └── guardrail.py         # Security: injection detection (Gemini 1.5 Flash) + LGPD
 ├── infrastructure/
-│   ├── redis_client.py      # Upstash Redis session CRUD + EstadoConversa Pydantic model
-│   └── supabase_logger.py   # Real Supabase logger (table: logs_atendimento) + fallback
-├── frontend.py              # Streamlit UI — GraphQL client, polling, stream typing effect
+│   ├── database.py          # Native PostgreSQL client (asyncpg) with pooling & pgvector
+│   ├── redis_client.py      # Redis session CRUD + EstadoConversa Pydantic model
+│   └── supabase_logger.py   # Unified DB Logger (PostgreSQL native with Supabase fallback)
+├── frontend/                # Modern Cyberpunk / Glassmorphism Operator Console UI (Node.js)
+├── tools/vectorizer/        # Knowledge Base vectorization pipeline (sentence-transformers)
+├── docker/postgres/init.sql # PostgreSQL + pgvector schema and initialization
+├── frontend.py              # Streamlit UI — alternative GraphQL client
 ├── cloudbuild.yaml          # CI/CD: Cloud Build → Cloud Run Service
 ├── Dockerfile               # Python 3.11-slim + pre-baked all-MiniLM-L6-v2 model
-├── docker-compose.yml       # Dev local (env vars from .env)
-├── .env                     # Real env vars — NEVER commit
+├── docker-compose.yml       # Fullstack self-hosted (API + Frontend + Redis + PostgreSQL)
 ├── .env.example             # Template (safe to commit)
 ├── .gitignore               # Excludes .env, .venv, index_cache*/, logs
 └── requirements.txt         # All dependencies (synchronized with actual code)

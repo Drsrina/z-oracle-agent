@@ -1,7 +1,9 @@
 version: '3.8'
 
-# Desenvolvimento local apenas — produção usa Cloud Run
-# As chaves vêm do .env (nunca hardcoded aqui)
+# ==============================================================
+# AEGIS-REBOT — Self-Hosted Fullstack Stack
+# Substitui Upstash por Redis local e Supabase por PostgreSQL (pgvector)
+# ==============================================================
 
 services:
   api:
@@ -11,10 +13,13 @@ services:
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - REDIS_URL=redis://redis_db:6379/0
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - DATABASE_URL=postgresql://postgres:postgres@postgres_db:5432/aegis
+      - SUPABASE_URL=${SUPABASE_URL:-}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-}
     depends_on:
       redis_db:
+        condition: service_healthy
+      postgres_db:
         condition: service_healthy
 
   frontend:
@@ -39,5 +44,23 @@ services:
       timeout: 3s
       retries: 5
 
+  postgres_db:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=aegis
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d aegis"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
 volumes:
   redis_data:
+  postgres_data:

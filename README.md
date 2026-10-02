@@ -7,9 +7,9 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-5.0-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![LlamaIndex](https://img.shields.io/badge/LlamaIndex-RAG-7C3AED?style=for-the-badge)](https://www.llamaindex.ai)
 [![Gemini](https://img.shields.io/badge/Gemini-2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev)
-[![Redis](https://img.shields.io/badge/Upstash-Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://upstash.com)
-[![Supabase](https://img.shields.io/badge/Supabase-Logger-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
-[![Docker](https://img.shields.io/badge/Cloud_Run-Deploy-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://cloud.google.com/run)
+[![Redis](https://img.shields.io/badge/Redis-7.0-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://github.com/pgvector/pgvector)
+[![Docker](https://img.shields.io/badge/Docker-Self--Hosted-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com)
 
 > **Agente conversacional de nível produção** para a plataforma de apostas **BetAgent** (`betagent.bet.br`).
 > Interface de chat via **Streamlit + GraphQL**. Aplica guardrails de segurança, roteamento semântico e
@@ -43,7 +43,7 @@
   ├──────────────────────────────────────────────────────────┤
   │  [PASSO 1]  infrastructure/redis_client.py               │
   │             obter_estado(telefone)  →  EstadoConversa    │
-  │             TTL 24h | Upstash Redis TLS                  │
+  │             TTL 24h | Redis Local / Upstash              │
   │                                                          │
   │  [PASSO 2]  core/guardrail.py                            │
   │             avaliar_injecao_prompt()  →  LLM-as-a-Judge  │
@@ -61,10 +61,10 @@
   │             LLM: gemini-2.5-flash | RAG: top_k=3        │
   │                                                          │
   │  [PASSO 5]  infrastructure/redis_client.py               │
-  │             guardar_estado() → Upstash Redis             │
+  │             guardar_estado() → Redis Local / Upstash     │
   │                                                          │
-  │  [PASSO 6]  infrastructure/supabase_logger.py            │
-  │             registar_log_assincrono() → Supabase         │
+  │  [PASSO 6]  infrastructure/database.py                   │
+  │             registar_log_assincrono() → PostgreSQL       │
   └──────────────────────────────────────────────────────────┘
            │
            ▼  Query obterHistorico() / Polling
@@ -210,9 +210,10 @@ query {
 | Variável | Obrigatória | Descrição |
 |---|---|---|
 | `GEMINI_API_KEY` | **Sim** | Chave Google AI Studio (LLM principal + guardrail + sumarização) |
-| `REDIS_URL` | **Sim** | Upstash TCP: `rediss://default:SENHA@HOST.upstash.io:6379` |
-| `SUPABASE_URL` | Não | URL do projeto Supabase para logs analíticos |
-| `SUPABASE_ANON_KEY` | Não | Chave anon do Supabase |
+| `REDIS_URL` | **Sim** | Local: `redis://redis_db:6379/0` (ou `redis://localhost:6379/0`) \| Nuvem: Upstash TCP |
+| `DATABASE_URL` | **Recomendada** | PostgreSQL: `postgresql://postgres:postgres@postgres_db:5432/aegis` (pgvector) |
+| `SUPABASE_URL` | Não | Opcional se usar PostgreSQL nativo (URL do projeto Supabase) |
+| `SUPABASE_ANON_KEY` | Não | Opcional (Chave anon do Supabase) |
 
 ---
 
@@ -220,7 +221,7 @@ query {
 
 ### 1. Implantação Self-Hosted Completa (Docker Compose) 🐳
 
-A forma mais simples e recomendada para rodar toda a stack localmente (Backend + Console Frontend + Redis):
+Stack 100% self-hosted em containers locais, sem dependência de contas pagas no Upstash ou Supabase:
 
 ```bash
 # 1. Copie e preencha as variáveis de ambiente mínimas (.env)
@@ -234,6 +235,7 @@ Serviços disponíveis após a inicialização:
 - **Operator Console UI (Frontend)**: [http://localhost:3000](http://localhost:3000) (Login padrão: `adm123` / `adm123`)
 - **FastAPI / GraphQL Playground (Backend)**: [http://localhost:8000/graphql](http://localhost:8000/graphql)
 - **Redis Local**: `localhost:6379`
+- **PostgreSQL Local + pgvector**: `localhost:5432` (db: `aegis`)
 
 ---
 

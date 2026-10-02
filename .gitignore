@@ -52,6 +52,7 @@ Thumbs.db
 # Arquivos de dados internos (mesmo que estejam na raiz)
 relatorio_tech.md
 *.sql
+!docker/**/*.sql
 *.xlsx
 *.csv
 Chat

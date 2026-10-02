@@ -1,4 +1,4 @@
-﻿import time
+import time
 import logging
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks, status
 from fastapi.responses import JSONResponse
@@ -19,8 +19,9 @@ load_dotenv()
 from core.router import classificar_rota, Rota
 from core.guardrail import verificar_seguranca
 from core.agent import processar_mensagem_llm
-from infrastructure.redis_client import obter_estado, guardar_estado, EstadoConversa
+from infrastructure.redis_client import obter_estado, guardar_estado, EstadoConversa, redis_db
 from infrastructure.supabase_logger import registar_log_assincrono, registar_historico_assincrono
+from infrastructure.database import get_db_pool, close_db_pool
 from api.graphql_schema import graphql_app
 from starlette.concurrency import run_in_threadpool
 
@@ -103,10 +104,35 @@ async def tarefas_pos_processamento(estado: EstadoConversa, telefone: str, paylo
 # ENDPOINTS
 # ==========================================
 
+@app.on_event("startup")
+async def startup_event():
+    """Inicializa conexões com banco de dados PostgreSQL e recursos assíncronos."""
+    await get_db_pool()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Fecha conexões de banco de dados graciosamente."""
+    await close_db_pool()
+
 @app.get("/health", tags=["Infraestrutura"])
 async def health_check():
-    """Endpoint vital para Kubernetes/Docker saberem se a API está viva."""
-    return {"status": "online", "timestamp": time.time()}
+    """Endpoint vital para Kubernetes/Docker saberem se a API e seus bancos estão vivos."""
+    db_pool = await get_db_pool()
+    redis_ok = False
+    if redis_db:
+        try:
+            redis_ok = bool(redis_db.ping())
+        except Exception:
+            redis_ok = False
+
+    return {
+        "status": "online",
+        "timestamp": time.time(),
+        "services": {
+            "redis": "connected" if redis_ok else "fallback_in_memory",
+            "postgres": "connected" if db_pool is not None else "supabase_or_console_fallback"
+        }
+    }
 
 
 @app.post("/api/ingerir", tags=["Admin"])
