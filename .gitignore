@@ -1,11 +1,20 @@
 # ==============================================================
-# Z-Oracle Agent — .gitignore
+# Z-Oracle Atendee — .gitignore
 # ==============================================================
 
-# Variáveis de ambiente (NUNCA commitar chaves reais)
+# Variáveis de ambiente e segredos (NUNCA commitar chaves reais)
 .env
 .env.*
 !.env.example
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+secrets.*
+credentials.json
+client_secret*.json
 
 # Ambiente virtual Python
 .venv/
@@ -48,5 +57,8 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Docker builds locais
+# Docker builds e volumes locais
 *.tar
+docker-data/
+postgres_data/
+redis_data/

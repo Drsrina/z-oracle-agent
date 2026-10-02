@@ -1,6 +1,6 @@
 # Knowledge Base Vectorizer
 
-Pipeline de pré-processamento e vetorização da base de conhecimento do AEGIS-REBOT.
+Pipeline de pré-processamento e vetorização da base de conhecimento do Z-Oracle Atendee.
 
 Utiliza o mesmo modelo `all-MiniLM-L6-v2` empregado no `router.py` e `agent.py`, garantindo que a busca semântica da KB e o roteamento de intenções vivam no **mesmo espaço vetorial**.
 

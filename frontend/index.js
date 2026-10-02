@@ -33,6 +33,6 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`[AEGIS-FRONTEND] Servidor e Proxy rodando na porta ${PORT}`);
-  console.log(`[AEGIS-FRONTEND] Proxy apontando para API Backend: ${API_URL}`);
+  console.log(`[Z-ORACLE-FRONTEND] Servidor e Proxy rodando na porta ${PORT}`);
+  console.log(`[Z-ORACLE-FRONTEND] Proxy apontando para API Backend: ${API_URL}`);
 });

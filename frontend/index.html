@@ -3,81 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Z-Oracle - Console</title>
+    <title>Z-Oracle — Console de Operações</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-    <div class="orb-container">
-        <div class="orb cyan"></div>
-        <div class="orb purple"></div>
-        <div class="orb pink"></div>
-    </div>
-
-    <!-- TELA 1: LOGIN -->
+    <!-- TELA 1: LOGIN TÉCNICO -->
     <div id="login-screen" class="screen active">
         <div class="glass-panel login-box">
-            <div>
-                <h1 class="title-main text-neon-cyan">Z-Oracle</h1>
-                <p class="text-secondary">Autenticação do Operador</p>
-                <div style="margin-top: 10px; font-size: 0.8rem; color: var(--text-muted);">
-                    <i data-lucide="clock" style="width: 14px; height: 14px; display: inline; vertical-align: middle;"></i> 
+            <div class="login-header">
+                <div class="brand-badge">
+                    <span class="pulse-dot"></span> CS Operations Console
+                </div>
+                <h1 class="title-main">Z-Oracle</h1>
+                <p class="text-secondary">Autenticação do Operador de Atendimento</p>
+                <div style="margin-top: 8px; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">
+                    <i data-lucide="clock" style="width: 13px; height: 13px; display: inline; vertical-align: middle;"></i> 
                     <span id="login-clock">--:--:--</span>
                 </div>
             </div>
 
-            <form id="login-form" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <form id="login-form" style="display: flex; flex-direction: column; gap: 1.25rem;">
                 <div class="input-group">
-                    <label for="username">Usuário</label>
-                    <input type="text" id="username" class="glass-input" placeholder="Digite seu usuário..." autocomplete="off">
+                    <label for="username">Identificador / Usuário</label>
+                    <input type="text" id="username" class="glass-input" placeholder="Ex: adm123" autocomplete="off">
                 </div>
                 
                 <div class="input-group">
-                    <label for="password">Senha</label>
+                    <label for="password">Chave de Acesso / Senha</label>
                     <input type="password" id="password" class="glass-input" placeholder="••••••••">
                 </div>
 
-                <div id="login-error" style="color: #f87171; font-size: 0.85rem; display: none;">Credenciais inválidas.</div>
+                <div id="login-error" style="color: var(--status-danger); font-size: 0.8rem; display: none;">Credenciais inválidas. Tente novamente.</div>
 
-                <button type="submit" id="btn-login" class="btn-primary">Acessar Console</button>
+                <button type="submit" id="btn-login" class="btn-primary">
+                    <i data-lucide="log-in" style="width: 16px; height: 16px;"></i> Acessar Console
+                </button>
             </form>
         </div>
     </div>
 
-    <!-- TELA 2: CONSOLE -->
+    <!-- TELA 2: CONSOLE OPERACIONAL -->
     <div id="console-screen" class="screen">
         <header class="header glass-panel">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <h2 class="text-neon-cyan">Z-Oracle <span style="font-weight: 300;">Console</span></h2>
-                <span class="badge blue" id="session-badge">SESSID: ---</span>
+            <div class="header-brand">
+                <h2>Z-Oracle <span>Console</span></h2>
+                <span class="badge green"><span class="pulse-dot" style="margin-right: 5px;"></span>GATEWAY ATIVO</span>
+                <span class="badge technical" id="session-badge">SESSID: ---</span>
             </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <button id="btn-theme" class="btn-icon" title="Alternar Tema"><i data-lucide="moon"></i></button>
-                <button id="btn-reset" class="btn-icon btn-icon-outline" title="Reiniciar Sessão"><i data-lucide="rotate-ccw"></i></button>
-                <button id="btn-logout" class="btn-icon btn-icon-danger" title="Sair"><i data-lucide="log-out"></i></button>
+            <div class="header-actions">
+                <button id="btn-theme" class="btn-icon" title="Alternar Tema (Claro / Escuro)"><i data-lucide="moon"></i></button>
+                <button id="btn-reset" class="btn-icon btn-icon-outline" title="Reiniciar Sessão de Teste"><i data-lucide="rotate-ccw"></i></button>
+                <button id="btn-logout" class="btn-icon btn-icon-danger" title="Encerrar Sessão"><i data-lucide="log-out"></i></button>
             </div>
         </header>
 
         <div class="main-content">
+            <!-- Painel de Conversação -->
             <div class="glass-panel chat-area">
                 <div class="chat-history" id="chat-history">
-                    <div style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
-                        Conexão Estabelecida. Estabelecendo túnel seguro.
+                    <div class="system-notice">
+                        [SISTEMA] Conexão estabelecida via GraphQL Proxy. Guardrails e Roteamento Semântico ativos.
                     </div>
                 </div>
 
                 <form id="chat-form" class="chat-input-area">
-                    <input type="text" id="chat-input" class="glass-input" style="flex: 1;" placeholder="Comunique-se com a IA..." autocomplete="off">
-                    <button type="submit" id="btn-send" class="btn-primary" style="padding: 0.8rem 1.2rem;"><i data-lucide="send"></i></button>
+                    <input type="text" id="chat-input" class="glass-input" placeholder="Envie uma mensagem ou consulte regras..." autocomplete="off">
+                    <button type="submit" id="btn-send" class="btn-primary" title="Enviar Mensagem">
+                        <i data-lucide="send" style="width: 15px; height: 15px;"></i>
+                    </button>
                 </form>
             </div>
 
+            <!-- Painel de Telemetria e Auditoria -->
             <div class="glass-panel metadata-sidebar">
-                <h3 class="text-neon-accent" style="margin-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; gap: 5px;">
-                    <i data-lucide="terminal" style="width: 18px;"></i> LoggerSidebar
-                </h3>
+                <div class="sidebar-title">
+                    <h3><i data-lucide="activity"></i> Telemetria & Event Stream</h3>
+                    <span class="badge blue">LIVE</span>
+                </div>
                 <div class="log-terminal" id="log-terminal">
-                    <div class="log-entry info">[SISTEMA] Z-Oracle Engine carregada.</div>
+                    <div class="log-entry info">[SISTEMA] Z-Oracle Cognitive Engine inicializada.</div>
                 </div>
             </div>
         </div>
@@ -142,13 +150,13 @@
         // ==========================================
         function salvarSessao() {
             if (!sessionId) return;
-            localStorage.setItem('aegis_sessionId', sessionId);
-            localStorage.setItem('aegis_lastCount', lastMessageCount);
+            localStorage.setItem('zoracle_sessionId', sessionId);
+            localStorage.setItem('zoracle_lastCount', lastMessageCount);
         }
 
         function restaurarSessao() {
-            const savedId    = localStorage.getItem('aegis_sessionId');
-            const savedCount = localStorage.getItem('aegis_lastCount');
+            const savedId    = localStorage.getItem('zoracle_sessionId');
+            const savedCount = localStorage.getItem('zoracle_lastCount');
             if (savedId) {
                 sessionId        = savedId;
                 lastMessageCount = parseInt(savedCount || '0', 10);
@@ -392,6 +400,7 @@
             }
 
             chatHistory.appendChild(wrap);
+            lucide.createIcons();
             scrollToBottom();
         }
 
@@ -431,29 +440,29 @@
             const cnfLLM    = msg.confianca || (logGer?.confianca ? logGer.confianca + '%' : '—');
             const motivo    = msg.motivo || logGer?.motivo || '';
 
-            // Cores por decisão
+            // Cores por decisão (estética técnica e sóbria)
             const DECISAO_COLORS = {
-                DIAGNOSTICAR: { bg: 'rgba(74,222,128,0.15)', border: '#4ade80', text: '#4ade80', icon: '🟢' },
-                COLETAR:      { bg: 'rgba(56,189,248,0.15)', border: '#38bdf8', text: '#38bdf8', icon: '🔵' },
-                ECO:          { bg: 'rgba(251,191,36,0.15)', border: '#fbbf24', text: '#fbbf24', icon: '🟡' },
-                ESCALAR:      { bg: 'rgba(248,113,113,0.15)', border: '#f87171', text: '#f87171', icon: '🔴' },
-                CLARIFICAR:   { bg: 'rgba(167,139,250,0.15)', border: '#a78bfa', text: '#a78bfa', icon: '🟣' },
+                DIAGNOSTICAR: { bg: 'var(--status-success-bg)', border: 'var(--status-success-border)', text: 'var(--status-success)', label: 'DIAGNÓSTICO APROVADO' },
+                COLETAR:      { bg: 'var(--accent-subtle)', border: 'var(--accent-border)', text: 'var(--accent-primary)', label: 'COLETA EM ANDAMENTO' },
+                ECO:          { bg: 'var(--status-warning-bg)', border: 'var(--status-warning-border)', text: 'var(--status-warning)', label: 'CONFIRMAÇÃO (ECO) PENDENTE' },
+                ESCALAR:      { bg: 'var(--status-danger-bg)', border: 'var(--status-danger-border)', text: 'var(--status-danger)', label: 'TRANSBORDO HUMANO' },
+                CLARIFICAR:   { bg: 'rgba(99, 102, 241, 0.12)', border: 'rgba(99, 102, 241, 0.3)', text: '#818cf8', label: 'CLARIFICAÇÃO NECESSÁRIA' },
             };
             const dc = decisao ? (DECISAO_COLORS[decisao] || DECISAO_COLORS.COLETAR) : null;
 
             // Barra de progresso
             const pct     = cnfSint !== null ? Math.min(cnfSint, 100) : 0;
-            const barColor= pct < 30 ? '#f87171' : pct < threshold ? '#fbbf24' : '#4ade80';
+            const barColor= pct < 30 ? 'var(--status-danger)' : pct < threshold ? 'var(--status-warning)' : 'var(--status-success)';
 
             // --- Botão Toggle ---
             const btnToggle = document.createElement('button');
             btnToggle.className = 'meta-toggle-btn';
             btnToggle.innerHTML = `
                 <span style="display:flex;align-items:center;gap:6px;">
-                    <i data-lucide="activity" style="width:14px;height:14px;"></i>
-                    METADADOS DA RESPOSTA
+                    <i data-lucide="activity" style="width:13px;height:13px;"></i>
+                    AUDITORIA & TELEMETRIA DA RESPOSTA
                 </span>
-                <i data-lucide="chevron-down" style="width:14px;height:14px;" class="meta-chevron"></i>
+                <i data-lucide="chevron-down" style="width:13px;height:13px;" class="meta-chevron"></i>
             `;
 
             // --- Painel ---
@@ -467,11 +476,11 @@
                 decisaoHtml = `
                     <div class="meta-decisao-card" style="background:${dc.bg};border:1px solid ${dc.border};">
                         <div class="meta-decisao-header">
-                            <span class="meta-decisao-badge" style="color:${dc.text};">${dc.icon} ${decisao}</span>
-                            <span class="meta-decisao-threshold">threshold: ${threshold}%</span>
+                            <span class="meta-decisao-badge" style="color:${dc.text};">${dc.label || decisao}</span>
+                            <span class="meta-decisao-threshold">Limiar Mínimo: ${threshold}%</span>
                         </div>
                         ${ cnfSint !== null ? `
-                        <div class="meta-conf-label">Confiança Sintética</div>
+                        <div class="meta-conf-label">Confiança Sintética Calculada</div>
                         <div class="meta-conf-bar-wrap">
                             <div class="meta-conf-bar" style="width:${pct}%;background:${barColor};"></div>
                         </div>

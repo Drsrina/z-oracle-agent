@@ -1,8 +1,8 @@
-# CLAUDE.md — Z-Oracle Agent (BetAgent AI Agent)
+# CLAUDE.md — Z-Oracle Atendee (BetAgent AI Agent)
 
 ## Project Overview
 
-Z-Oracle Agent is a production-grade **AI customer service agent** for the Brazilian betting platform **BetAgent** (`betagent.bet.br`). It receives messages via a **Streamlit chat interface** (GraphQL protocol), routes them semantically, applies security guardrails, and responds using an LLM + RAG pipeline. All code comments, docstrings, variable names, and prompts are in **Portuguese (Brazilian)**.
+Z-Oracle Atendee is a production-grade **AI customer service agent** for the Brazilian betting platform **BetAgent** (`betagent.bet.br`). It receives messages via a **Streamlit chat interface** (GraphQL protocol), routes them semantically, applies security guardrails, and responds using an LLM + RAG pipeline. All code comments, docstrings, variable names, and prompts are in **Portuguese (Brazilian)**.
 
 > **Note:** There is no WhatsApp integration. The current interface is Streamlit + GraphQL only.
 
@@ -40,7 +40,7 @@ Streamlit UI (frontend.py)
 ## Directory Structure
 
 ```
-Z-Oracle Agent/
+Z-Oracle Atendee/
 ├── api/
 │   ├── main.py              # FastAPI app (endpoints: /health, /api/ingerir, mounts /graphql)
 │   └── graphql_schema.py    # Strawberry GraphQL schema — main protocol (debounce 15s)
@@ -181,7 +181,7 @@ gcloud builds submit --config cloudbuild.yaml
 
 ```bash
 # 1. Create Artifact Registry repo
-gcloud artifacts repositories create rebot-artifacts \
+gcloud artifacts repositories create zoracle-artifacts \
   --repository-format=docker --location=us-central1
 
 # 2. Create secrets in Secret Manager

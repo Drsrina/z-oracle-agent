@@ -1,0 +1,80 @@
+Business Source License 1.1
+
+Parameters:
+
+Licensor:             Rio B. (Z-Oracle Atendee)
+Licensed Work:        Z-Oracle Atendee (including all associated source code, backend API,
+                      core reasoning engine, semantic router, database schemas, and frontend
+                      operator console).
+Additional Use Grant: You may use the Licensed Work for evaluation, testing, local development,
+                      benchmarking, and non-commercial educational or academic research purposes.
+                      You may NOT use the Licensed Work in production environments to conduct
+                      commercial customer service operations, nor redistribute, host, sub-license,
+                      or offer the Licensed Work as a managed service, Software-as-a-Service (SaaS),
+                      API service, or commercial product to third parties without an express
+                      commercial license granted by the Licensor.
+Change Date:          2030-01-01
+Change License:       Apache License, Version 2.0
+
+====================================================================================================
+
+Business Source License 1.1
+
+1. Definitions
+
+"Licensor" means the entity specified above that is offering the Licensed Work under this License.
+
+"Licensed Work" means the software, code, or other material made available under this License, as
+specified in the Parameters above.
+
+"Additional Use Grant" means the specific permissions and terms granted above in the Parameters,
+which expand upon the rights granted under Section 2.
+
+"Change Date" means the date specified in the Parameters above, or the date specified in a later
+version of this License granted by Licensor.
+
+"Change License" means the license specified in the Parameters above.
+
+"Use" means any use, reproduction, modification, distribution, execution, or compilation of the
+Licensed Work.
+
+2. License Grant
+
+Subject to the terms and conditions of this License, Licensor hereby grants you a worldwide,
+royalty-free, non-exclusive license to:
+
+(a) Use the Licensed Work solely in accordance with the Additional Use Grant; and
+(b) Make copies of the Licensed Work and distribute such copies to third parties, provided that each
+    copy is accompanied by a complete copy of this License and all associated copyright notices.
+
+3. Restrictions
+
+Except as expressly authorized in the Additional Use Grant or under Section 5, you may NOT:
+(a) Use the Licensed Work in production to deliver commercial services to paying customers or third
+    parties;
+(b) Provide the Licensed Work as a hosted, managed, or Software-as-a-Service (SaaS) solution;
+(c) Remove, alter, or obscure any copyright, trademark, or other proprietary notices contained in
+    or on the Licensed Work.
+
+4. Commercial Licensing
+
+If you wish to use the Licensed Work outside the scope of the Additional Use Grant (such as
+deploying in commercial production, providing customer service operations, or reselling as part
+of a commercial software solution), you must obtain an express Commercial License from the
+Licensor. Please contact the Licensor for commercial terms.
+
+5. Effective Date and Change Date
+
+This License is effective as of the date you accept it by downloading, accessing, or using the
+Licensed Work. On the Change Date specified above, this License shall automatically terminate with
+respect to the Licensed Work, and the Licensed Work shall automatically become subject to the
+Change License specified above without any further action required.
+
+6. Disclaimer of Warranties
+
+THE LICENSED WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+TITLE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE LICENSOR OR COPYRIGHT HOLDERS BE LIABLE FOR
+ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE,
+ARISING FROM, OUT OF, OR IN CONNECTION WITH THE LICENSED WORK OR THE USE OR OTHER DEALINGS IN
+THE LICENSED WORK.

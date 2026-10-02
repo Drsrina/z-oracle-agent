@@ -1,7 +1,7 @@
 {
-  "name": "aegis-frontend",
+  "name": "zoracle-frontend",
   "version": "1.0.0",
-  "description": "AEGIS-REBOT Operator Console & Reverse Proxy",
+  "description": "Z-Oracle Operator Console & Reverse Proxy",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"

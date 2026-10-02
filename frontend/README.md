@@ -1,6 +1,6 @@
-# AEGIS-REBOT — Operator Console Frontend
+# Z-Oracle Operator Console Frontend
 
-Console de Operações interativo com interface cyberpunk / glassmorphism moderna para monitoramento e interação com o agente conversacional **AEGIS-REBOT**.
+Console de Operações interativo com interface cyberpunk / glassmorphism moderna para monitoramento e interação com o agente conversacional **Z-Oracle Atendee**.
 
 ---
 

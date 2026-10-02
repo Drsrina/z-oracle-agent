@@ -1,7 +1,5 @@
-version: '3.8'
-
 # ==============================================================
-# AEGIS-REBOT — Self-Hosted Fullstack Stack
+# Z-Oracle Atendee — Self-Hosted Fullstack Stack
 # Substitui Upstash por Redis local e Supabase por PostgreSQL (pgvector)
 # ==============================================================
 
@@ -13,7 +11,7 @@ services:
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - REDIS_URL=redis://redis_db:6379/0
-      - DATABASE_URL=postgresql://postgres:postgres@postgres_db:5432/aegis
+      - DATABASE_URL=postgresql://postgres:postgres@postgres_db:5432/zoracle
       - SUPABASE_URL=${SUPABASE_URL:-}
       - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-}
     depends_on:
@@ -51,12 +49,12 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=aegis
+      - POSTGRES_DB=zoracle
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d aegis"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d zoracle"]
       interval: 5s
       timeout: 3s
       retries: 5

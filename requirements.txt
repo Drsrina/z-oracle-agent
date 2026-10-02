@@ -1,5 +1,5 @@
 # ==============================================================
-# Z-Oracle Agent — Dependências Python
+# Z-Oracle Atendee — Dependências Python
 # Sincronizado com o código real em produção (Março 2026)
 # ==============================================================
 

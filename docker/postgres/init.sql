@@ -1,5 +1,5 @@
 -- ==============================================================
--- AEGIS-REBOT — PostgreSQL + pgvector Initialization Script
+-- Z-Oracle Atendee — PostgreSQL + pgvector Initialization Script
 -- Auto-executado pelo Docker no primeiro boot do banco
 -- ==============================================================
 
@@ -99,3 +99,15 @@ AS $$
     ORDER BY similarity DESC
     LIMIT match_count;
 $$;
+
+-- 7. Tabela de Controle de Versão do Esquema (Schema Migrations)
+CREATE TABLE IF NOT EXISTS schema_migrations (
+    id SERIAL PRIMARY KEY,
+    version VARCHAR(50) UNIQUE NOT NULL,
+    description TEXT NOT NULL,
+    applied_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+INSERT INTO schema_migrations (version, description)
+VALUES ('001_initial_schema', 'Tabelas essenciais: logs_atendimento, sessoes, mensagens, base_conhecimento (pgvector) e match_documents')
+ON CONFLICT (version) DO NOTHING;

@@ -36,8 +36,8 @@ logging.basicConfig(
 logger = logging.getLogger("betagent_agent")
 
 app = FastAPI(
-    title="BetAgent AI Agent API",
-    description="API de atendimento automatizado via Webhook (WhatsApp)",
+    title="Z-Oracle Atendee API",
+    description="API de atendimento cognitivo com roteamento semântico e RAG",
     version="5.0.0"
 )
 

@@ -1,4 +1,4 @@
-# cloudbuild.yaml — Z-Oracle Agent
+# cloudbuild.yaml — Z-Oracle Atendee
 # Substitua SEU_PROJECT_ID pelo ID do seu projeto GCP
 # Serviço: Cloud Run SERVICE (API HTTP de longa duração, não Jobs)
 
@@ -6,8 +6,8 @@ substitutions:
   _REGION: 'us-central1'                   # Altere conforme sua região GCP
   _PROJECT_ID: 'SEU_PROJECT_ID'            # Substitua pelo seu GCP Project ID
   _AR_REPO_NAME: 'SEU_ARTIFACT_REGISTRY'   # Nome do seu repositório no Artifact Registry
-  _IMAGE_NAME: 'z-oracle-agent'
-  _SERVICE_NAME: 'z-oracle-agent-api'
+  _IMAGE_NAME: 'zoracle-atendee'
+  _SERVICE_NAME: 'zoracle-atendee-api'
 
 steps:
   # 1. Build da imagem Docker

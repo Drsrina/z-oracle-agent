@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-pipeline_vetorizacao.py — AEGIS-REBOT Knowledge Base Vectorizer
+pipeline_vetorizacao.py — Z-Oracle Atendee Knowledge Base Vectorizer
 ================================================================
 Pipeline completo em uma única execução:
   1. Lê um CSV com artigos da base de conhecimento
@@ -182,7 +182,7 @@ def main(input_csv: str, output_dir: str):
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="AEGIS Knowledge Base Vectorizer")
+    parser = argparse.ArgumentParser(description="Z-Oracle Knowledge Base Vectorizer")
     parser.add_argument("--input",  required=True, help="CSV de entrada (artigos da KB)")
     parser.add_argument("--output", default="output/", help="Diretório de saída")
     args = parser.parse_args()

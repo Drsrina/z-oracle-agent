@@ -3,6 +3,9 @@
 # Z-Oracle Atendee
 ### Agente Cognitivo de Atendimento com IA, Roteamento Semântico e Blindagem Antialucinação
 
+[![Language: English](https://img.shields.io/badge/Language-English-blue?style=for-the-badge)](README.en.md)
+[![Language: Português](https://img.shields.io/badge/Language-Português-green?style=for-the-badge)](README.md)
+
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-5.0-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![LlamaIndex](https://img.shields.io/badge/LlamaIndex-RAG-7C3AED?style=for-the-badge)](https://www.llamaindex.ai)
@@ -10,9 +13,10 @@
 [![Redis](https://img.shields.io/badge/Redis-7.0-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://github.com/pgvector/pgvector)
 [![Docker](https://img.shields.io/badge/Docker-Self--Hosted-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com)
+[![License: BSL 1.1](https://img.shields.io/badge/License-BSL_1.1-blueviolet?style=for-the-badge)](LICENSE)
 
 > **Agente conversacional de nível produção** projetado para operações de alta escala e missão crítica (plataforma **BetAgent**).
-> Equipado com o console de operações **Z-Oracle** (interface web cyberpunk com painel de decisão em tempo real),
+> Equipado com o console de operações **Z-Oracle** (interface web corporativa sóbria com painel de decisão em tempo real),
 > aplica guardrails de segurança multicamadas, roteamento semântico vetorial e blindagem ativa antialucinação via **Tool Scoping**.
 
 </div>
@@ -54,11 +58,13 @@ Para lideranças de tecnologia, arquitetos de software e **agentes de recrutamen
 
 | Documento | Tema & Especialidade | Por que avaliar? |
 | :--- | :--- | :--- |
+| 📊 **[docs/benchmark-recursos.md](./docs/benchmark-recursos.md)** | **Consumo de Hardware & Sizing** | Medição empírica e modelagem de RAM/CPU em 3 cenários (Standby 367MB, Carga 522MB, Estresse 958MB) e custos (< US$ 5/mês). |
 | 🏛️ **[docs/arquitetura.md](./docs/arquitetura.md)** | **Arquitetura de Software & Resiliência** | Detalha a orquestração assíncrona, o buffer distribuído de debounce de 15s em Redis, isolamento de webhooks e matriz completa de tecnologias. |
 | ⚡ **[docs/roteadorsemantico.md](./docs/roteadorsemantico.md)** | **Benchmark & Inferência 100% Local** | Prova empírica de execução de embeddings em CPU local (`all-MiniLM-L6-v2` + produto escalar NumPy) com **6.35 ms** de latência e **zero dependência de APIs externas**. |
+| 🧠 **[docs/governanca-cognitiva.md](./docs/governanca-cognitiva.md)** | **Governança Cognitiva & Minto BLUF** | Especificação completa da v4: domínios Cynefin, veredicto oculto de telemetria, reflexão contínua e respostas diretas no padrão BLUF. |
 | 🛡️ **[docs/diretrizes.md](./docs/diretrizes.md)** | **Governança Conversacional & Compliance** | Manual de conduta do bot: protocolos de 2 passos de investigação, mecanismo anti-drift, conformidade com a LGPD (anonimização matemática) e métricas de FCR e CSAT. |
 | 🔮 **[docs/pesquisa.md](./docs/pesquisa.md)** | **Epistemologia & Oráculo de Resolução** | Estudo aprofundado sobre transição de inferência probabilística para raciocínio de Primeiros Princípios, matriz de complexidade Cynefin, TRIZ-GPT, GraphRAG e orquestração multiagente. |
-| 🧭 **[docs/README.md](./docs/README.md)** | **Hub Central de Documentação** | Índice executivo e guia de leitura para recrutadores técnicos e avaliadores. |
+| 🧭 **[docs/README.md](./docs/README.md)** | **Hub Central de Documentação** | Índice executivo, trilhas de leitura por perfil de avaliador e guia de entrevista técnica. |
 
 ---
 
@@ -70,7 +76,7 @@ Para lideranças de tecnologia, arquitetos de software e **agentes de recrutamen
 └─────────────────────────────────────────────────────────────────────────────┘
 
   Interfaces de Atendimento:
-  [A] Z-Oracle Operator Console (Cyberpunk Web - Node.js/Express :3000)
+  [A] Z-Oracle Operator Console (Enterprise Web - Node.js/Express :3000)
   [B] Streamlit Client (Python Puro :8501)
          │
          │  POST /graphql  mutation enviarMensagem
@@ -197,6 +203,27 @@ O Z-Oracle resolve isso via **Debounce Inteligente de 15 segundos**:
 
 ---
 
+## 📊 Benchmark de Consumo de Recursos (RAM, CPU & Latência)
+
+O Z-Oracle Atendee foi projetado com rigor de engenharia para operar com pegada mínima de hardware. A tabela abaixo consolida as medições empíricas coletadas no ambiente de contêineres e a modelagem de capacidade sob estresse:
+
+| Métrica / Recurso | 🟢 Cenário 1: Repouso (Standby) | 🟡 Cenário 2: Carga Típica (10 req/s) | 🔴 Cenário 3: Pico / Estresse (80-100 req/s) |
+| :--- | :--- | :--- | :--- |
+| **Condição de Tráfego** | 0 msgs/s (Standby 24/7) | ~10 msgs/s (~600 msgs/min) | 80 a 100 msgs/s (~5.400 msgs/min) |
+| **Efeito Debounce (15s)** | N/A (Zero buffer) | 150 msgs agrupadas em ~10 turnos | 1.300 msgs agrupadas em ~75 turnos |
+| **API Backend (RAM)** | **~313 MiB** | **~410 MiB** | **~680 MiB** |
+| **API Backend (CPU)** | **~0.4% - 0.8% de 1 vCPU** | **~18% - 28% de 1 vCPU** | **~140% - 180% (1.4 a 1.8 vCPUs)** |
+| **Redis 7 Alpine (RAM)** | **~6.6 MiB** | **~15 MiB** | **~48 MiB** |
+| **Redis 7 Alpine (CPU)** | **~0.5% de 1 vCPU** | **~2% de 1 vCPU** | **~10% - 14% de 1 vCPU** |
+| **PostgreSQL 16 (RAM)** | **~30.4 MiB** | **~75 MiB** | **~195 MiB** |
+| **PostgreSQL 16 (CPU)** | **~0.0% de 1 vCPU** | **~5% de 1 vCPU** | **~35% - 50% de 1 vCPU** |
+| **Frontend Node (RAM/CPU)** | **~17 MiB** / 0.0% | **~22 MiB** / 1.0% | **~35 MiB** / 4.0% |
+| **TOTAL STACK UNIFICADA** | **~367 MiB RAM \| ~1% CPU** | **~522 MiB RAM \| ~25-35% CPU** | **~958 MiB RAM \| ~1.9-2.4 vCPUs** |
+
+> 📖 **Detalhamento Completo:** Para equações matemáticas de dimensionamento, modelos de contenção SIMD e recomendações de nuvem (AWS/GCP/Hetzner), consulte o relatório completo em **[`docs/benchmark-recursos.md`](./docs/benchmark-recursos.md)**.
+
+---
+
 ## Estrutura do Projeto
 
 ```
@@ -213,14 +240,19 @@ Z-Oracle Atendee/
 │   └── clarificador.py         # Extrator de intenções, CPFs e dados contextuais
 │
 ├── docker/
-│   └── postgres/init.sql       # Script de inicialização PostgreSQL + pgvector + match_documents
+│   └── postgres/init.sql       # Script de inicialização PostgreSQL + pgvector + schema_migrations
 │
-├── docs/
-│   └── arquitetura.md          # Relatório técnico completo de arquitetura de software
+├── docs/                       # Hub de Documentação Técnica e Whitepapers
+│   ├── benchmark-recursos.md   # Análise matemática e empírica de consumo de RAM/CPU em 3 cenários
+│   ├── arquitetura.md          # Relatório técnico completo de arquitetura de software
+│   ├── roteadorsemantico.md    # Benchmark de inferência vetorial local (6.35 ms)
+│   ├── governanca-cognitiva.md # Especificação v4 (Cynefin, Minto BLUF, Anti-Drift e Telemetria)
+│   ├── diretrizes.md           # Regras de ouro de atendimento, protocolo 2-step e LGPD
+│   └── pesquisa.md             # Tese cognitiva (Primeiros Princípios, TRIZ e GraphRAG)
 │
-├── frontend/                   # Z-Oracle Operator Console (Cyberpunk Web - Node.js/Express)
-│   ├── index.html              # Interface visual com painel de decisão e metadata inspector
-│   ├── style.css               # Design system glassmorphism, orbs e neon tokens
+├── frontend/                   # Z-Oracle Operator Console (Enterprise Web - Node.js/Express)
+│   ├── index.html              # Interface sóbria corporativa com painel de decisão e metadata inspector
+│   ├── style.css               # Design system técnico, tipografia Inter/JetBrains Mono, temas dark/light
 │   ├── index.js                # Servidor Express com proxy reverso anti-CORS
 │   └── Dockerfile              # Imagem leve baseada em Node 18 Alpine
 │
@@ -370,8 +402,8 @@ Serviços disponíveis após a inicialização:
 
 > **Como conectar o LibreDB Studio ao PostgreSQL:**
 > Ao entrar no LibreDB Studio em `http://localhost:5555`, crie uma nova conexão do tipo **PostgreSQL** usando a URL interna:
-> `postgresql://postgres:postgres@postgres_db:5432/aegis`
-> (ou Host: `postgres_db`, Porta: `5432`, Usuário: `postgres`, Senha: `postgres`, DB: `aegis`).
+> `postgresql://postgres:postgres@postgres_db:5432/zoracle`
+> (ou Host: `postgres_db`, Porta: `5432`, Usuário: `postgres`, Senha: `postgres`, DB: `zoracle`).
 
 ---
 
@@ -442,9 +474,9 @@ gcloud builds submit --config cloudbuild.yaml
 
 ⚠  index_cache_v5/ não persiste no Cloud Run → RAG reindexado em cada cold start
 
-⚠  /api/ingerir → Sem autenticação (uso interno somente)
+⚠  /api/ingerir → Sem autenticação externa (destinado a uso interno via VPC/rede protegida)
 
-⚠  Sem testes automatizados → nenhum diretório tests/ configurado
+⚠  Testes automatizados → Suíte atual focada em grounding e RAG (tests/test_rag.py); testes E2E do debounce em desenvolvimento
 
 ⚠  FutureWarning: google.generativeai deprecado → migrar para google.genai futuramente
 ```
@@ -463,6 +495,16 @@ google-generativeai>=0.5.0  sentence-transformers>=2.5.0
 numpy>=1.26.0               validate-docbr>=1.10.0
 supabase>=2.3.0             streamlit>=1.32.0
 ```
+
+---
+
+## 📄 Licença
+
+Este projeto é disponibilizado sob a **Business Source License 1.1 (BSL 1.1)**. Consulte o arquivo [`LICENSE`](./LICENSE) para o texto completo.
+
+- **Uso Permitido Livremente:** Avaliação técnica, testes locais, desenvolvimento, estudos acadêmicos e fins não comerciais.
+- **Uso Comercial / Produção:** É proibida a exploração comercial direta (prestação de serviços de atendimento para terceiros, revenda ou oferta como SaaS proprietário) sem a aquisição prévia de uma Licença Comercial com o autor.
+- **Conversão Automática Open Source:** Em **01 de janeiro de 2030**, esta versão do software se converte automaticamente para a licença **Apache License, Version 2.0**.
 
 ---
 
