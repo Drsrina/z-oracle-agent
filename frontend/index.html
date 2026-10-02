@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V2 - Console</title>
+    <title>Z-Oracle - Console</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -18,7 +18,7 @@
     <div id="login-screen" class="screen active">
         <div class="glass-panel login-box">
             <div>
-                <h1 class="title-main text-neon-cyan">AEGIS V2</h1>
+                <h1 class="title-main text-neon-cyan">Z-Oracle</h1>
                 <p class="text-secondary">Autenticação do Operador</p>
                 <div style="margin-top: 10px; font-size: 0.8rem; color: var(--text-muted);">
                     <i data-lucide="clock" style="width: 14px; height: 14px; display: inline; vertical-align: middle;"></i> 
@@ -48,7 +48,7 @@
     <div id="console-screen" class="screen">
         <header class="header glass-panel">
             <div style="display: flex; align-items: center; gap: 15px;">
-                <h2 class="text-neon-cyan">AEGIS <span style="font-weight: 300;">Console</span></h2>
+                <h2 class="text-neon-cyan">Z-Oracle <span style="font-weight: 300;">Console</span></h2>
                 <span class="badge blue" id="session-badge">SESSID: ---</span>
             </div>
             <div style="display: flex; gap: 10px; align-items: center;">
@@ -77,7 +77,7 @@
                     <i data-lucide="terminal" style="width: 18px;"></i> LoggerSidebar
                 </h3>
                 <div class="log-terminal" id="log-terminal">
-                    <div class="log-entry info">[SISTEMA] AEGIS Engine v2.0 carregada.</div>
+                    <div class="log-entry info">[SISTEMA] Z-Oracle Engine carregada.</div>
                 </div>
             </div>
         </div>
@@ -596,7 +596,7 @@
 
             // Limpa o chat para a próxima sessão
             chatHistory.innerHTML = '';
-            logTerminal.innerHTML = '<div class="log-entry info">[SISTEMA] AEGIS Engine v2.0 carregada.</div>';
+            logTerminal.innerHTML = '<div class="log-entry info">[SISTEMA] Z-Oracle Engine carregada.</div>';
 
             // Navega de volta ao login
             consoleScreen.classList.remove('active');
